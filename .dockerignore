@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+node_modules
+dist
+apps/*/dist
+apps/*/coverage
+apps/*/*.tsbuildinfo
+coverage
+docs/demo
+docs/screenshots
+.DS_Store
