@@ -17,14 +17,17 @@ let farmSerial = 0;
 const farms = centerSizes.flatMap((size, centerIndex) => Array.from({length: size}, () => { farmSerial += 1; return {id: `FARM-${String(farmSerial).padStart(3, '0')}`, name: `Dairy Farm ${String(farmSerial).padStart(3, '0')}`, centerId: centers[centerIndex].id, tankId: centers[centerIndex].tankId, vehicleId: vehicles[centerIndex % vehicles.length].id}; }));
 const processBatches = Array.from({length: days * tanks.length}, (_, index) => ({id: `PB-${day(Math.floor(index / tanks.length))}-${tanks[index % tanks.length].id}`, tankId: tanks[index % tanks.length].id, startedAt: `${day(Math.floor(index / tanks.length))}T18:00:00+05:30`}));
 const rawLots = farms.flatMap((farm) => {
-  const farmLots = Array.from({length: days}, (_, dayIndex) => ['AM', 'PM'].map((shift, shiftIndex) => ({
-    id: `RML-${farm.id}-${day(dayIndex)}-${shift}`,
-    name: `${shift === 'AM' ? 'Morning' : 'Evening'} collection · ${day(dayIndex)}`,
-    shift, farmId: farm.id, centerId: farm.centerId, tankId: farm.tankId, vehicleId: farm.vehicleId,
-    batchId: `PB-${day(dayIndex)}-${farm.tankId}`, collectionDate: day(dayIndex),
-    collectedAt: `${day(dayIndex)}T${shiftIndex ? '16:30' : '05:30'}:00+05:30`,
-    quantityLiters: 180 + ((dayIndex * 17 + shiftIndex * 31 + Number(farm.id.slice(-3))) % 240)
-  }));
+  const farmLots = Array.from(
+    {length: days},
+    (_, dayIndex) => ['AM', 'PM'].map((shift, shiftIndex) => ({
+      id: `RML-${farm.id}-${day(dayIndex)}-${shift}`,
+      name: `${shift === 'AM' ? 'Morning' : 'Evening'} collection · ${day(dayIndex)}`,
+      shift, farmId: farm.id, centerId: farm.centerId, tankId: farm.tankId, vehicleId: farm.vehicleId,
+      batchId: `PB-${day(dayIndex)}-${farm.tankId}`, collectionDate: day(dayIndex),
+      collectedAt: `${day(dayIndex)}T${shiftIndex ? '16:30' : '05:30'}:00+05:30`,
+      quantityLiters: 180 + ((dayIndex * 17 + shiftIndex * 31 + Number(farm.id.slice(-3))) % 240)
+    }))
+  );
   return farmLots.flat();
 });
 const finishedLots = processBatches.flatMap((batch, index) => ['FRESH', 'TONED', 'CREAM'].map((product, productIndex) => ({id: `FL-${batch.id}-${product}`, lotCode: `${product}-${String(index + 1).padStart(5, '0')}`, batchId: batch.id, shipmentId: `SHP-${String(index + 1).padStart(5, '0')}-${product}`, storeId: stores[(index + productIndex) % stores.length].id, packagedAt: `${day(Math.floor(index / tanks.length) + 1)}T09:00:00+05:30`, product})));
