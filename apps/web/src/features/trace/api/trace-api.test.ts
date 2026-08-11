@@ -15,6 +15,15 @@ describe('trace API client', () => {
     expect(fetch).toHaveBeenNthCalledWith(2, 'http://localhost:3001/api/traces/farm/FARM-014?date=2026-08-10');
   });
 
+  it('warms the API with a non-cached health request', async () => {
+    const fetch = vi.fn().mockResolvedValue({ok: true});
+    vi.stubGlobal('fetch', fetch);
+
+    await traceApi.wake();
+
+    expect(fetch).toHaveBeenCalledWith('http://localhost:3001/api/health', {cache: 'no-store'});
+  });
+
   it('rejects a non-success API response with a user-safe message', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: false}));
 

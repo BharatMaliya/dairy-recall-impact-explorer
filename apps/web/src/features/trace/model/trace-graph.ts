@@ -2,13 +2,14 @@ import { MarkerType, type Edge, type Node } from '@xyflow/react';
 import { readableDate } from './format';
 import type { AggregateNodeData, GroupKey, Trace, TraceKind, TraceRow } from './types';
 
-const nodeLimit = 20;
-const arrow = {type: MarkerType.ArrowClosed};
-const point = (column: number, index: number) => ({x: 24 + column * 360, y: 28 + index * 122});
+const nodeLimit = 10;
+const arrow = { type: MarkerType.ArrowClosed };
+const point = (column: number, index: number) => ({ x: 24 + column * 360, y: 28 + index * 122 });
 
 const unique = <T,>(items: T[]) => [...new Set(items)];
 const dedupeNodes = (nodes: Node[]) => [...new Map(nodes.map((node) => [node.id, node])).values()];
 const dedupeEdges = (edges: Edge[]) => [...new Map(edges.map((edge) => [edge.id, edge])).values()];
+type TraceEntityIdKey = 'farmId' | 'rawLotId' | 'batchId' | 'finishedLotId' | 'storeId';
 
 export function buildNetworkTrace(kind: TraceKind, title: string, explanation: string, rows: TraceRow[]): Trace {
   if (!rows.length) throw new Error('No time-matched evidence exists for that search. Try a date between 1–15 August 2026.');
@@ -18,7 +19,11 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
   const batches = unique(rows.map((row) => row.batchId));
   const finishedLots = unique(rows.map((row) => row.finishedLotId));
   const stores = unique(rows.filter((row) => row.storeId).map((row) => row.storeId));
-  const byId = (id: string, key: keyof TraceRow) => rows.find((row) => row[key] === id)!;
+  const byId = (id: string, key: TraceEntityIdKey): TraceRow => {
+    const row = rows.find((candidate) => candidate[key] === id);
+    if (!row) throw new Error(`Trace data is missing the expected ${key} evidence for ${id}.`);
+    return row;
+  };
   const isCollapsed = (ids: string[]) => ids.length > nodeLimit;
   const aggregateId = (group: GroupKey) => `aggregate-${group}`;
   const visibleId = (group: GroupKey, id: string, ids: string[]) => isCollapsed(ids) ? aggregateId(group) : id;
@@ -42,7 +47,7 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
       }))]
       : farmIds.map((id, index) => {
         const row = byId(id, 'farmId');
-        return {id, position: point(0, index), data: {label: `Milk producer\n${row.farmName}\n${id}`}, className: 'source'};
+        return { id, position: point(0, index), data: { label: `Milk producer\n${row.farmName}\n${id}` }, className: 'source' };
       })),
     ...(isCollapsed(rawIds)
       ? [aggregateNode('raw', rawIds.length, 1, 'raw milk collections', rawIds.map((id) => {
@@ -51,11 +56,11 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
       }))]
       : rawIds.map((id, index) => {
         const row = byId(id, 'rawLotId');
-        return {id, position: point(1, index), data: {label: `${row.shift} collection\n${readableDate(row.collectionDate)}\n${row.quantityLiters} L · ${id}`}, className: 'source'};
+        return { id, position: point(1, index), data: { label: `${row.shift} collection\n${readableDate(row.collectionDate)}\n${row.quantityLiters} L · ${id}` }, className: 'source' };
       })),
     ...(isCollapsed(batches)
       ? [aggregateNode('batch', batches.length, 2, 'processing batches', batches)]
-      : batches.map((id, index) => ({id, position: point(2, index), data: {label: `Mixed processing batch\n${id}\nMilk from multiple farms`}, className: 'process'}))),
+      : batches.map((id, index) => ({ id, position: point(2, index), data: { label: `Mixed processing batch\n${id}\nMilk from multiple farms` }, className: 'process' }))),
     ...(isCollapsed(finishedLots)
       ? [aggregateNode('finished', finishedLots.length, 3, 'finished milk lots', finishedLots.map((id) => {
         const row = byId(id, 'finishedLotId');
@@ -63,7 +68,7 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
       }))]
       : finishedLots.map((id, index) => {
         const row = byId(id, 'finishedLotId');
-        return {id, position: point(3, index), data: {label: `Finished dairy lot\n${row.lotCode}\n${id}`}, className: 'impact'};
+        return { id, position: point(3, index), data: { label: `Finished dairy lot\n${row.lotCode}\n${id}` }, className: 'impact' };
       })),
     ...(isCollapsed(stores)
       ? [aggregateNode('store', stores.length, 4, 'retail destinations', stores.map((id) => {
@@ -72,7 +77,7 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
       }))]
       : stores.map((id, index) => {
         const row = byId(id, 'storeId');
-        return {id, position: point(4, index), data: {label: `Retail destination\n${row.storeName}\nArrived ${readableDate(row.storeArrivalDate ?? undefined)}\n${id}`}, className: 'destination'};
+        return { id, position: point(4, index), data: { label: `Retail destination\n${row.storeName}\nArrived ${readableDate(row.storeArrivalDate ?? undefined)}\n${id}` }, className: 'destination' };
       }))
   ];
 
@@ -101,7 +106,7 @@ export function buildNetworkTrace(kind: TraceKind, title: string, explanation: s
       target: visibleId('store', row.storeId, stores),
       label: 'shipped to'
     }] : [])
-  ]).map((edge) => ({...edge, animated: true, markerEnd: arrow}));
+  ]).map((edge) => ({ ...edge, animated: true, markerEnd: arrow }));
 
   return {
     kind,
