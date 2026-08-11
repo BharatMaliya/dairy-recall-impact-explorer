@@ -1,0 +1,8 @@
+/* Keep fitView's usable canvas clear of the overlaying controls. */
+.investigation-workspace:has(.control-sidebar.is-open) .graph-canvas {
+  left: 365px;
+}
+
+.investigation-workspace:has(.control-sidebar.is-collapsed) .graph-canvas {
+  left: 62px;
+}

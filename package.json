@@ -5,11 +5,8 @@
   "scripts": {
     "dev": "pnpm --parallel --filter api --filter web dev",
     "build": "pnpm --filter api build && pnpm --filter web build",
-    "seed": "pnpm --filter api seed",
-    "seed:large": "pnpm --filter api seed:large",
-    "seed:realistic": "pnpm --filter api seed:realistic",
-    "wipe": "pnpm --filter api wipe",
-    "check": "pnpm --filter api check && pnpm --filter web check"
+    "check": "pnpm --filter api check && pnpm --filter web check",
+    "test": "pnpm --filter api test && pnpm --filter web test"
   },
   "devDependencies": {
     "typescript": "^5.7.3"
