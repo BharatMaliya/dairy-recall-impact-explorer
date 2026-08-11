@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "check": "tsc --noEmit",
+    "seed": "tsx src/seed.ts",
+    "seed:large": "tsx src/seed-large.ts",
+    "seed:realistic": "tsx src/seed-realistic.ts",
+    "wipe": "tsx src/wipe.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "neo4j-driver": "^5.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
