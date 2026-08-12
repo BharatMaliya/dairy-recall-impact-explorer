@@ -75,7 +75,6 @@ apps/api/                 Fastify routes and CognoDB adapter
 apps/web/src/app/         application composition
 apps/web/src/features/    trace API, graph model, state, and UI
 docs/screenshots/         README UI screenshots
-docs/demo/                walkthrough video
 ```
 
 ## Screenshots and demo
@@ -86,4 +85,4 @@ docs/demo/                walkthrough video
 
 ![Store trace](docs/screenshots/03-store-reverse-trace.png)
 
-[Watch the short walkthrough](docs/demo/dairytrace-demo.mp4)
+[Watch the Loom walkthrough](https://www.loom.com/share/480271b2ba0c404d954ef928f37b436d)
